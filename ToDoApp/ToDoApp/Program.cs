@@ -1,5 +1,9 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.Data;
+using ToDoApp.Services;
+using ToDoApp.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +14,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddValidatorsFromAssemblyContaining<ToDoCreateDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddScoped<IToDoService, ToDoService>();
+
 
 builder.Services.AddDbContext<ToDoDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ToDoDb")));
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
